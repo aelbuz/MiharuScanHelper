@@ -54,13 +54,23 @@ namespace Miharu.FrontEnd
                             title += fi.Name.Replace(fi.Extension, "");
                         }
                         else
+                        {
                             title += "untitled";
+                        }
+
                         if (!_chapterManager.IsChapterSaved)
+                        {
                             title += "*";
+                        }
+
                         title += " - Miharu Scan Helper";
                     }
                     else
+                    {
                         title += "Miharu Scan Helper";
+                    }
+
+                    title += string.Format(" [{0} -> {1}]", Settings.Default.TesseractSourceLanguage, Settings.Default.TranslationTargetLanguage);
                     Title = title;
                 });
             }
