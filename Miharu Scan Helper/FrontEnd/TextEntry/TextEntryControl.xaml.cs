@@ -269,7 +269,7 @@ namespace Miharu.FrontEnd
         private void VerticalToggleSwitched_Toggled(object sender, RoutedEventArgs e)
         {
             if (_textEntryManager.IsTextSelected && _textEntryManager.CurrentText.Vertical != VerticalToggleSwitch.IsOn)
-                _textEntryManager.SetVertical(VerticalToggleSwitch.IsOn);
+                _textEntryManager.SetVertical(_textEntryManager.CurrentText.Vertical);
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
