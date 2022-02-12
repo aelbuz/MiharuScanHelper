@@ -1,39 +1,34 @@
-﻿
+﻿using Miharu.BackEnd.Helper;
 using OpenQA.Selenium;
 using System;
 
 namespace Miharu.BackEnd.Translation.WebCrawlers
 {
-	class WCGoogleTranslator : WebCrawlerTranslator {
-	
-		private const string _URL = "https://translate.google.com/#view=home&op=translate&sl=ja&tl=en&text=";
+    public class WCGoogleTranslator : WebCrawlerTranslator
+    {
+        private readonly string _URL;
 
-		public WCGoogleTranslator(WebDriverManager webDriverManager) : base(webDriverManager)
-		{
-		}
+        public WCGoogleTranslator(WebDriverManager webDriverManager, TesseractSourceLanguage tesseractSourceLanguage) : base(webDriverManager)
+        {
+            _URL = "https://translate.google.com/#view=home&op=translate&sl=" + tesseractSourceLanguage.ToTranslationSourceLanguageParameter() + "&tl=en&text=";
+        }
 
-		public override TranslationType Type {
-			get { return TranslationType.Google_Web; }
-		}
+        public override TranslationType Type => TranslationType.Google_Web;
 
-		protected override By FetchBy {
-			get { return By.XPath("//div[@class='zkZ4Kc dHeVVb']"); }
-		}
+        protected override By FetchBy => By.XPath("//div[@class='zkZ4Kc dHeVVb']");
 
-		protected override string GetUri(string text)
-		{
-			return _URL + Uri.EscapeDataString(text);
-		}
+        protected override string GetUri(string text)
+        {
+            return _URL + Uri.EscapeDataString(text);
+        }
 
+        public override string ProcessResult(IWebElement result)
+        {
+            string res = "";
+            res += result.GetAttribute("data-text");
 
-		public override string ProcessResult(IWebElement result)
-		{
-			string res = "";
-
-			res += result.GetAttribute("data-text");
-				
-			return res;
-		}
-	}
+            return res;
+        }
+    }
 }
 
