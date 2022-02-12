@@ -3,6 +3,8 @@
 A tool to (hopefully) speed up manga translation efforts and ease tentative translation of manga.
 </br>
 </br>
+**Forked from [Ynscription](https://github.com/Ynscription/MiharuScanHelper) for some improvements.**
+</br>
 ## Installing and Running Miharu
 
 ### Requirements
