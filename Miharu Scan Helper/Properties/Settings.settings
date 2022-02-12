@@ -26,5 +26,11 @@
     <Setting Name="UseScreenDPI" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="TesseractSourceLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Japanese</Value>
+    </Setting>
+    <Setting Name="TranslationTargetLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">English</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

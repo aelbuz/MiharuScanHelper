@@ -71,7 +71,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControlzEx, Version=4.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
@@ -215,6 +215,7 @@
     <Compile Include="BackEnd\Data\Note.cs" />
     <Compile Include="BackEnd\Data\SaveUpdater.cs" />
     <Compile Include="BackEnd\Helper\JPUTF8CharCounter.cs" />
+    <Compile Include="BackEnd\Helper\LanguageExtensions.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPBingTranslator.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPGoogleTranslator.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPJishoTranslator.cs" />
@@ -225,10 +226,12 @@
     <Compile Include="BackEnd\Data\SFXContainer.cs" />
     <Compile Include="BackEnd\Data\Text.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPYandexTranslator.cs" />
+    <Compile Include="BackEnd\Translation\TesseractSourceLanguage.cs" />
     <Compile Include="BackEnd\Translation\Threading\TranslationRequest.cs" />
     <Compile Include="BackEnd\Translation\Threading\TranslatorThread.cs" />
     <Compile Include="BackEnd\Translation\TranslationFailEventArgs.cs" />
     <Compile Include="BackEnd\Translation\TranslationProvider.cs" />
+    <Compile Include="BackEnd\Translation\TranslationTargetLanguage.cs" />
     <Compile Include="BackEnd\Translation\Translator.cs" />
     <Compile Include="BackEnd\Translation\WebCrawlers\WCDeepLTranslator.cs" />
     <Compile Include="BackEnd\Translation\WebCrawlers\WCGoogleTranslator.cs" />
@@ -464,6 +467,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Redist\Tesseract-OCR\tessdata\jpn_vert.traineddata">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Redist\Tesseract-OCR\tessdata\kor.traineddata">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Redist\Tesseract-OCR\tessdata\kor_vert.traineddata">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Redist\Tesseract-OCR\tessdata\tessconfigs\batch">
