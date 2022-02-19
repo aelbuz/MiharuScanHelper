@@ -128,9 +128,10 @@ Would you like to locate the Tesseract exectutable manually?";
                 //Initialize stuff
                 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory.ToString());
                 if (CheckForTesseract() &&
-                    Enum.TryParse(Settings.Default["TesseractSourceLanguage"].ToString(), out TesseractSourceLanguage tesseractSourceLanguage))
+                    Enum.TryParse(Settings.Default.TesseractSourceLanguage, out TesseractSourceLanguage tesseractSourceLanguage) &&
+                    Enum.TryParse(Settings.Default.TranslationTargetLanguage, out TranslationTargetLanguage translationTargetLanguage))
                 {
-                    translatorThread = TranslatorThread.StartThread(tesseractSourceLanguage);
+                    translatorThread = TranslatorThread.StartThread(tesseractSourceLanguage, translationTargetLanguage);
 
                     string startChapter = null;
                     startChapter = CheckCrash();

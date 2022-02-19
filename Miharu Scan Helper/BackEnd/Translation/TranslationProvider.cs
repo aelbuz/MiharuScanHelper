@@ -1,4 +1,5 @@
 ﻿using Miharu.BackEnd.Data;
+using Miharu.BackEnd.Helper;
 using Miharu.BackEnd.Translation.HTTPTranslators;
 using Miharu.BackEnd.Translation.Threading;
 using Miharu.BackEnd.Translation.WebCrawlers;
@@ -32,34 +33,48 @@ namespace Miharu.BackEnd.Translation
     {
         private readonly Dictionary<TranslationType, Translator> _translators;
 
-        public TranslationProvider(WebDriverManager wdManager, TesseractSourceLanguage tesseractSourceLanguage)
+        public TranslationProvider(WebDriverManager wdManager, TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
             _translators = new Dictionary<TranslationType, Translator>();
 
-            _translators.Add(TranslationType.Google_API, new HTTPGoogleTranslator(tesseractSourceLanguage));
-            if (wdManager.IsAlive)
-                _translators.Add(TranslationType.Google_Web, new WCGoogleTranslator(wdManager, tesseractSourceLanguage));
-
-            if (wdManager.IsAlive && tesseractSourceLanguage is TesseractSourceLanguage.Japanese)
-                _translators.Add(TranslationType.DeepL_Web, new WCDeepLTranslator(wdManager)); // Korean not supported
-
-            if (wdManager.IsAlive)
-                _translators.Add(TranslationType.Papago_Web, new WCPapagoTranslator(wdManager, tesseractSourceLanguage));
-
-            _translators.Add(TranslationType.Bing_API, new HTTPBingTranslator(tesseractSourceLanguage));
-
-
-            if (wdManager.IsAlive)
-                _translators.Add(TranslationType.Yandex_Web, new WCYandexTranslator(wdManager, tesseractSourceLanguage));
-
-            if (tesseractSourceLanguage is TesseractSourceLanguage.Japanese)
+            if (TranslationType.Google_API.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
             {
-                _translators.Add(TranslationType.Jaded_Network, new HTTPTJNTranslator()); // Japanese only (SFX dictionary) 
+                _translators.Add(TranslationType.Google_API, new HTTPGoogleTranslator(tesseractSourceLanguage, translationTargetLanguage));
             }
 
-            if (tesseractSourceLanguage is TesseractSourceLanguage.Japanese)
+            if (wdManager.IsAlive && TranslationType.Google_Web.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
             {
-                _translators.Add(TranslationType.Jisho, new HTTPJishoTranslator()); // Japanese only 
+                _translators.Add(TranslationType.Google_Web, new WCGoogleTranslator(wdManager, tesseractSourceLanguage, translationTargetLanguage));
+            }
+
+            if (wdManager.IsAlive && TranslationType.DeepL_Web.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
+            {
+                _translators.Add(TranslationType.DeepL_Web, new WCDeepLTranslator(wdManager, tesseractSourceLanguage, translationTargetLanguage));
+            }
+
+            if (wdManager.IsAlive && TranslationType.Papago_Web.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
+            {
+                _translators.Add(TranslationType.Papago_Web, new WCPapagoTranslator(wdManager, tesseractSourceLanguage, translationTargetLanguage));
+            }
+
+            if (TranslationType.Bing_API.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
+            {
+                _translators.Add(TranslationType.Bing_API, new HTTPBingTranslator(tesseractSourceLanguage, translationTargetLanguage));
+            }
+
+            if (wdManager.IsAlive && TranslationType.Yandex_Web.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
+            {
+                _translators.Add(TranslationType.Yandex_Web, new WCYandexTranslator(wdManager, tesseractSourceLanguage, translationTargetLanguage));
+            }
+
+            if (TranslationType.Jaded_Network.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
+            {
+                _translators.Add(TranslationType.Jaded_Network, new HTTPTJNTranslator()); 
+            }
+
+            if (TranslationType.Jisho.SupportsTranslation(tesseractSourceLanguage, translationTargetLanguage))
+            {
+                _translators.Add(TranslationType.Jisho, new HTTPJishoTranslator());
             }
         }
 

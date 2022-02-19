@@ -8,9 +8,14 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
     {
         private readonly string _URL;
 
-        public WCPapagoTranslator(WebDriverManager webDriverManager, TesseractSourceLanguage tesseractSourceLanguage) : base(webDriverManager)
+        public WCPapagoTranslator(WebDriverManager webDriverManager,
+                                  TesseractSourceLanguage tesseractSourceLanguage,
+                                  TranslationTargetLanguage translationTargetLanguage)
+            : base(webDriverManager)
         {
-            _URL = "https://papago.naver.com/?sk=" + tesseractSourceLanguage.ToTranslationSourceLanguageParameter() + "&tk=en&st=";
+            _URL = string.Format("https://papago.naver.com/?sk={0}&tk={0}&st=",
+                                 tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
+                                 translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }
 
         public override TranslationType Type => TranslationType.Papago_Web;

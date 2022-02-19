@@ -45,20 +45,20 @@ namespace Miharu.BackEnd.Translation.Threading
             _workHandle = new AutoResetEvent(false);
         }
 
-        public static TranslatorThread StartThread(TesseractSourceLanguage tesseractSourceLanguage)
+        public static TranslatorThread StartThread(TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
             TranslatorThread res = new TranslatorThread();
 
-            Thread thread = new Thread(new ThreadStart(() => res.Work(tesseractSourceLanguage)));
+            Thread thread = new Thread(new ThreadStart(() => res.Work(tesseractSourceLanguage, translationTargetLanguage)));
             thread.Start();
 
             return res;
         }
 
-        private void Init(TesseractSourceLanguage tesseractSourceLanguage)
+        private void Init(TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
             _webDriverManager = new WebDriverManager();
-            _translationProvider = new TranslationProvider(_webDriverManager, tesseractSourceLanguage);
+            _translationProvider = new TranslationProvider(_webDriverManager, tesseractSourceLanguage, translationTargetLanguage);
             _workQueue = new ConcurrentQueue<TranslationRequest>();
             _initialized = true;
             _initializeHandle.Set();
@@ -71,11 +71,11 @@ namespace Miharu.BackEnd.Translation.Threading
 
 
 
-        public void Work(TesseractSourceLanguage tesseractSourceLanguage)
+        public void Work(TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
             try
             {
-                Init(tesseractSourceLanguage);
+                Init(tesseractSourceLanguage, translationTargetLanguage);
 
                 while (!_end)
                 {

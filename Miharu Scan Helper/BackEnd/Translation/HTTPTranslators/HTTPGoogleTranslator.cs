@@ -8,9 +8,11 @@ namespace Miharu.BackEnd.Translation.HTTPTranslators
         private readonly string _URL;
         public override TranslationType Type => TranslationType.Google_API;
 
-        public HTTPGoogleTranslator(TesseractSourceLanguage tesseractSourceLanguage)
+        public HTTPGoogleTranslator(TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
-            _URL = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + tesseractSourceLanguage.ToTranslationSourceLanguageParameter() + "&tl=en&dt=t&q=";
+            _URL = string.Format("https://translate.googleapis.com/translate_a/single?client=gtx&sl={0}&tl={1}&dt=t&q=",
+                                 tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
+                                 translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }
 
         protected override string GetUri(string text)

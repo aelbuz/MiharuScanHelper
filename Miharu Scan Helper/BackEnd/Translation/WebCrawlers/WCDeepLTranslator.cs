@@ -1,22 +1,22 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Support.UI;
+﻿using Miharu.BackEnd.Helper;
+using OpenQA.Selenium;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Miharu.BackEnd.Translation.WebCrawlers
 {
     public class WCDeepLTranslator : WebCrawlerTranslator
     {
+        private readonly string _URL;
 
-        private const string _URL = "https://www.deepl.com/translator#ja/en/";
-
-        public WCDeepLTranslator(WebDriverManager webDriverManager) : base(webDriverManager)
+        public WCDeepLTranslator(WebDriverManager webDriverManager,
+                                 TesseractSourceLanguage tesseractSourceLanguage,
+                                 TranslationTargetLanguage translationTargetLanguage)
+            : base(webDriverManager)
         {
+            _URL = string.Format("https://www.deepl.com/translator#{0}/{0}/",
+                                 tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
+                                 translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }
 
         public override TranslationType Type
@@ -34,14 +34,12 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
             return _URL + Uri.EscapeDataString(text);
         }
 
-
         public override async Task<string> Translate(string text)
         {
             string res = "";
             if (text == "")
                 return res;
             res = _webDriverManager.NavigateAndFetch(GetUri(text), FetchBy, ProcessResult, OverrideNavigation);
-
 
             return res;
         }
@@ -62,12 +60,10 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
                 if (results.Count > 0)
                     result = results[results.Count - 1];
 
-
                 var words = result.FindElements(By.XPath(".//*"));
                 foreach (IWebElement w in words)
                     res += w.GetAttribute("textContent");
             }
-
 
             return result;
         }
@@ -86,7 +82,5 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
                 res = res.Substring(0, index) + res.Substring(index + 2, res.Length - (index + 2));
             return res;
         }
-
-
     }
 }

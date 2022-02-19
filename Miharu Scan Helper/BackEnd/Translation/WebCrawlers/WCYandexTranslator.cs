@@ -13,10 +13,14 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
     {
         private readonly string _URL;
 
-        public WCYandexTranslator(WebDriverManager webDriverManager, TesseractSourceLanguage tesseractSourceLanguage)
+        public WCYandexTranslator(WebDriverManager webDriverManager,
+                                  TesseractSourceLanguage tesseractSourceLanguage,
+                                  TranslationTargetLanguage translationTargetLanguage)
             : base(webDriverManager)
         {
-            _URL = "https://translate.yandex.com/?lang=" + tesseractSourceLanguage.ToTranslationSourceLanguageParameter() + "-en&text=";
+            _URL = string.Format("https://translate.yandex.com/?lang={0}-{1}&text=",
+                                 tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
+                                 translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }
 
         public override TranslationType Type => TranslationType.Yandex_Web;

@@ -12,9 +12,11 @@ namespace Miharu.BackEnd.Translation.HTTPTranslators
     {
         private readonly string _URL;
 
-        public HTTPBingTranslator(TesseractSourceLanguage tesseractSourceLanguage)
+        public HTTPBingTranslator(TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
-            _URL = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=" + tesseractSourceLanguage.ToTranslationSourceLanguageParameter() + "&to=en";
+            _URL = string.Format("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from={0}&to={1}",
+                                 tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
+                                 translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }
 
         public override TranslationType Type => TranslationType.Bing_API;

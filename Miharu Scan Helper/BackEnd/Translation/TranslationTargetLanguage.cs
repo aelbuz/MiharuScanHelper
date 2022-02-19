@@ -2,6 +2,7 @@
 {
     public enum TranslationTargetLanguage
     {
-        English
+        English,
+        Turkish
     }
 }
