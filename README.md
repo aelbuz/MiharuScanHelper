@@ -3,7 +3,8 @@
 A tool to (hopefully) speed up manga translation efforts and ease tentative translation of manga.
 </br>
 ### **Forked from [Ynscription](https://github.com/Ynscription/MiharuScanHelper) for some improvements.**
-* Added Korean language support for Tesseract OCR.
+* Added Korean language support for Tesseract OCR. (Requires [Korean](https://github.com/tesseract-ocr/tessdata_best/blob/main/kor.traineddata) and [Vertical Korean](https://github.com/tesseract-ocr/tessdata_best/blob/main/kor_vert.traineddata) trained data.)
+* Added Turkish language support for translations (if supports).
 
 ## Installing and Running Miharu
 
