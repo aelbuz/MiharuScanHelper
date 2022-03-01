@@ -14,7 +14,7 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
                                  TranslationTargetLanguage translationTargetLanguage)
             : base(webDriverManager)
         {
-            _URL = string.Format("https://www.deepl.com/translator#{0}/{0}/",
+            _URL = string.Format("https://www.deepl.com/translator#{0}/{1}/",
                                  tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
                                  translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }

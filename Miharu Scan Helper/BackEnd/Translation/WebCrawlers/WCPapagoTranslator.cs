@@ -13,7 +13,7 @@ namespace Miharu.BackEnd.Translation.WebCrawlers
                                   TranslationTargetLanguage translationTargetLanguage)
             : base(webDriverManager)
         {
-            _URL = string.Format("https://papago.naver.com/?sk={0}&tk={0}&st=",
+            _URL = string.Format("https://papago.naver.com/?sk={0}&tk={1}&st=",
                                  tesseractSourceLanguage.ToTranslationSourceLanguageParameter(),
                                  translationTargetLanguage.ToTranslationTargetLanguageParameter());
         }
