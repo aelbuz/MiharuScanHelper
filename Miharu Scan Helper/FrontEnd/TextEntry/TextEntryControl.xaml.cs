@@ -245,6 +245,8 @@ namespace Miharu.FrontEnd
         {
             if ((bool)Properties.Settings.Default["AutoTranslateEnabled"])
                 TranslateAll();
+
+            _textEntryManager.PageManager.TextEntryRequiresTranslation -= OnTextEntryRequiresTranslation;
         }
 
         public void TranslateAll()
