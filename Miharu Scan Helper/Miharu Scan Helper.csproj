@@ -216,6 +216,7 @@
     <Compile Include="BackEnd\Data\SaveUpdater.cs" />
     <Compile Include="BackEnd\Helper\JPUTF8CharCounter.cs" />
     <Compile Include="BackEnd\Helper\LanguageExtensions.cs" />
+    <Compile Include="BackEnd\Helper\TranslatorHelper.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPBingTranslator.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPGoogleTranslator.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPJishoTranslator.cs" />

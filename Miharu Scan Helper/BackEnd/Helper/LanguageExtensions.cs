@@ -1,5 +1,5 @@
 ﻿using Miharu.BackEnd.Translation;
-using System;
+using System.ComponentModel;
 
 namespace Miharu.BackEnd.Helper
 {
@@ -18,7 +18,7 @@ namespace Miharu.BackEnd.Helper
                         return isVertical ? "kor_vert" : "kor";
                     }
                 default:
-                    throw new ArgumentException("Given Tesseract language is not supported.");
+                    throw new InvalidEnumArgumentException("Given Tesseract language is not supported.", (int)tesseractSourceLanguage, typeof(TesseractSourceLanguage));
             }
         }
 
@@ -31,7 +31,7 @@ namespace Miharu.BackEnd.Helper
                 case TesseractSourceLanguage.Korean:
                     return "ko";
                 default:
-                    throw new ArgumentException("Given translation language is not supported.");
+                    throw new InvalidEnumArgumentException("Given translation language is not supported.", (int)translationSourceLanguage, typeof(TesseractSourceLanguage));
             }
         }
 
@@ -41,10 +41,56 @@ namespace Miharu.BackEnd.Helper
             {
                 case TranslationTargetLanguage.English:
                     return "en";
+                case TranslationTargetLanguage.Bulgarian:
+                    return "bg";
+                case TranslationTargetLanguage.Czech:
+                    return "cs";
+                case TranslationTargetLanguage.Danish:
+                    return "da";
+                case TranslationTargetLanguage.Dutch:
+                    return "nl";
+                case TranslationTargetLanguage.Estonian:
+                    return "et";
+                case TranslationTargetLanguage.Finnish:
+                    return "fi";
+                case TranslationTargetLanguage.French:
+                    return "fr";
+                case TranslationTargetLanguage.German:
+                    return "de";
+                case TranslationTargetLanguage.Greek:
+                    return "el";
+                case TranslationTargetLanguage.Hungarian:
+                    return "hu";
+                case TranslationTargetLanguage.Italian:
+                    return "it";
+                case TranslationTargetLanguage.Japanese:
+                    return "ja";
+                case TranslationTargetLanguage.Latvian:
+                    return "lv";
+                case TranslationTargetLanguage.Lithuanian:
+                    return "lt";
+                case TranslationTargetLanguage.Polish:
+                    return "pl";
+                case TranslationTargetLanguage.Portuguese:
+                    return "pt";
+                case TranslationTargetLanguage.Romanian:
+                    return "ro";
+                case TranslationTargetLanguage.Russian:
+                    return "ru";
+                case TranslationTargetLanguage.SimplifiedChinese:
+                    return "zh-CN";
+                case TranslationTargetLanguage.Slovak:
+                    return "sk";
+                case TranslationTargetLanguage.Slovenian:
+                    return "sl";
+                case TranslationTargetLanguage.Spanish:
+                    return "es";
+                case TranslationTargetLanguage.Swedish:
+                    return "sv";
                 case TranslationTargetLanguage.Turkish:
                     return "tr";
                 default:
-                    throw new ArgumentException("Given translation language is not supported.");
+                    throw new InvalidEnumArgumentException("Given translation language is not supported.", (int)translationTargetLanguage, typeof(TranslationTargetLanguage));
             }
         }
 
@@ -69,13 +115,13 @@ namespace Miharu.BackEnd.Helper
                     {
                         return true;
                     }
-                case TranslationType.DeepL_Web: // Korean and Turkish not supported.
+                case TranslationType.DeepL_Web:
                     {
-                        return from == TesseractSourceLanguage.Japanese && to == TranslationTargetLanguage.English;
+                        return from.SupportedByDeepL() && to.SupportedByDeepL();
                     }
-                case TranslationType.Papago_Web: // Turkish not supported.
+                case TranslationType.Papago_Web:
                     {
-                        return (from == TesseractSourceLanguage.Japanese || from == TesseractSourceLanguage.Korean) && to == TranslationTargetLanguage.English;
+                        return from.SupportedByPapago() && to.SupportedByPapago();
                     }
                 case TranslationType.Jaded_Network: // Japanese only (SFX dictionary). Returns results in English.
                 case TranslationType.Jisho: // Japanese only. Returns results in English.
