@@ -38,8 +38,6 @@ A tool to (hopefully) speed up manga translation efforts and ease tentative tran
 * Some features require **Firefox Web Browser** to be installed in your system, but it's not necessary to run the program.
 The [binaries](https://github.com/Ynscription/ScanHelper/releases) of Miharu ~~should be~~ are 100% portable and require no installation as long as the requirements are met.
 
-</br>  
-
 ## Getting the Source Code Running
 
 [Tesseract OCR](https://github.com/tesseract-ocr/tesseract#installing-tesseract) must be in your system.  
@@ -48,12 +46,10 @@ The [binaries](https://github.com/Ynscription/ScanHelper/releases) of Miharu ~~s
 
 It is recommended to use Tesseract 4 and substitute the original trained data with these:
  [Japanese](https://github.com/tesseract-ocr/tessdata_best/blob/master/jpn.traineddata) and [Vertical Japanese](https://github.com/tesseract-ocr/tessdata_best/blob/master/jpn_vert.traineddata)  
-</br>  
+<br/>  
 **Optionally** [Gecko Driver](https://github.com/mozilla/geckodriver/releases/tag/v0.28.0) is required for the web crawling features.  
 > geckodriver.exe must be located in the directory `.\Resources\Redist\GeckoDriver\`
- 
- </br>
- 
+  
 ## Licenses
  
 **Miharu Scan Helper** is licensed under the [MIT License](https://github.com/Ynscription/MiharuScanHelper/blob/master/LICENSE)
@@ -81,4 +77,4 @@ Google Translate https://translate.google.com/
 Bing Translator https://www.bing.com/translator/  
 DeepL Translator https://www.deepl.com/translator  
 Papago Translator https://papago.naver.com  
-The Jaded Network http://thejadednetwork.com/sfx  
+The Jaded Network http://thejadednetwork.com/sfx
