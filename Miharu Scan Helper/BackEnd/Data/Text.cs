@@ -24,10 +24,10 @@ namespace Miharu.BackEnd.Data
         public event EventHandler RotationChanged;
 
         [JsonIgnore]
-        private readonly static string TEMP_IMG = @"./tmp.png";
+        private static readonly string TEMP_IMG = @"./tmp.png";
 
         [JsonIgnore]
-        private readonly static string TEMP_TXT = @"./tmp.hocr";
+        private static readonly string TEMP_TXT = @"./tmp.hocr";
 
         [JsonIgnore]
         private bool _parseInvalidated = true;
@@ -49,10 +49,10 @@ namespace Miharu.BackEnd.Data
             }
         }
 
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public Bitmap Source { get; private set; }
 
-        [JsonIgnoreAttribute]
+        [JsonIgnore]
         public Bitmap OriginalSource { get; private set; }
 
         public DPIAwareRectangle DpiAwareRectangle { get; private set; }
@@ -66,9 +66,14 @@ namespace Miharu.BackEnd.Data
             {
                 _rotation = value % 360;
                 if (_rotation > 180)
+                {
                     _rotation -= 360;
+                }
+
                 if (_rotation < -180)
+                {
                     _rotation += 360;
+                }
 
                 int width = OriginalSource.Width;
                 int height = OriginalSource.Height;
@@ -126,10 +131,7 @@ namespace Miharu.BackEnd.Data
         private volatile Dictionary<TranslationType, string> _translations;
         public string GetTranslation(TranslationType type)
         {
-            string res = null;
-            if (!_translations.TryGetValue(type, out res))
-                return null;
-            return res;
+            return !_translations.TryGetValue(type, out string res) ? null : res;
         }
 
         public void SetTranslation(TranslationType type, string value)
@@ -147,25 +149,16 @@ namespace Miharu.BackEnd.Data
         }
 
         [JsonProperty]
-        public List<Note> UniqueNotes
-        {
-            get => _uniqueNotes.Values.ToList();
-        }
+        public List<Note> UniqueNotes => _uniqueNotes.Values.ToList();
 
         [JsonIgnore]
-        private Dictionary<Guid, Note> _uniqueNotes;
+        private readonly Dictionary<Guid, Note> _uniqueNotes;
 
         [JsonIgnore]
-        public int NotesCount
-        {
-            get => _uniqueNotes.Count;
-        }
+        public int NotesCount => _uniqueNotes.Count;
 
         [JsonIgnore]
-        public IEnumerable<Note> NotesEnumerator
-        {
-            get { return _uniqueNotes.Values; }
-        }
+        public IEnumerable<Note> NotesEnumerator => _uniqueNotes.Values;
 
         public Guid AddNote(string text)
         {
@@ -173,14 +166,17 @@ namespace Miharu.BackEnd.Data
             _uniqueNotes.Add(n.Uuid, n);
             return n.Uuid;
         }
+
         public void RemoveNote(Guid guid)
         {
             _uniqueNotes.Remove(guid);
         }
+
         public void SetNote(Guid guid, string text)
         {
             _uniqueNotes[guid].Content = text;
         }
+
         public Note GetNote(Guid guid)
         {
             return _uniqueNotes[guid];
@@ -201,7 +197,10 @@ namespace Miharu.BackEnd.Data
         {
             Uuid = Guid.NewGuid();
             if (rect.Width == 0 || rect.Height == 0)
+            {
                 throw new ArgumentOutOfRangeException("rect", rect, "Can't create text entry with 0 width or 0 height rectangle.");
+            }
+
             OriginalSource = Source = src;
             DpiAwareRectangle = rect;
             TranslatedText = "";
@@ -223,14 +222,12 @@ namespace Miharu.BackEnd.Data
                     string googleTranslatedText, string bingTranslatedText,
                     string translatedText)
         {
-            if (uuid.HasValue)
-                Uuid = uuid.Value;
-            else
-                Uuid = Guid.NewGuid();
-
+            Uuid = uuid ?? Guid.NewGuid();
 
             if (dpiAwareRectangle != null)
+            {
                 DpiAwareRectangle = dpiAwareRectangle;
+            }
             else
             {
                 Graphics g = Graphics.FromHwnd(IntPtr.Zero);
@@ -239,10 +236,7 @@ namespace Miharu.BackEnd.Data
                 DpiAwareRectangle = new DPIAwareRectangle(rectangle, dpiX, dpiY);
             }
 
-            if (rotation.HasValue)
-                _rotation = rotation.Value;
-            else
-                _rotation = 0;
+            _rotation = rotation ?? 0;
 
             Vertical = vertical;
             _parseInvalidated = parseInvalidated;
@@ -252,7 +246,9 @@ namespace Miharu.BackEnd.Data
             if (uniqueNotes != null)
             {
                 foreach (Note n in uniqueNotes)
+                {
                     _uniqueNotes.Add(n.Uuid, n);
+                }
             }
             else if (_notes != null)
             {
@@ -264,7 +260,9 @@ namespace Miharu.BackEnd.Data
             }
 
             if (translations != null)
+            {
                 _translations = translations;
+            }
             else
             {
                 _translations = new Dictionary<TranslationType, string>();
@@ -298,10 +296,15 @@ namespace Miharu.BackEnd.Data
                     foreach (XElement line in p.Elements("span"))
                     {
                         foreach (XElement word in line.Elements("span"))
+                        {
                             res += word.Value;
+                        }
                     }
+
                     if (p != paragraphs.Last())
+                    {
                         res += Environment.NewLine;
+                    }
                 }
             }
 
@@ -311,7 +314,7 @@ namespace Miharu.BackEnd.Data
         private string ParseText()
         {
             if (Source == null ||
-                !Enum.TryParse(Settings.Default["TesseractSourceLanguage"].ToString(), out TesseractSourceLanguage tesseractSourceLanguage))
+                !Enum.TryParse(Settings.Default.TesseractSourceLanguage.ToString(), out TesseractSourceLanguage tesseractSourceLanguage))
             {
                 return "";
             }
@@ -320,7 +323,7 @@ namespace Miharu.BackEnd.Data
 
             using (Process pProcess = new Process())
             {
-                pProcess.StartInfo.FileName = (string)Settings.Default["TesseractPath"];
+                pProcess.StartInfo.FileName = Settings.Default.TesseractPath;
                 string lang = tesseractSourceLanguage.ToTesseractTestDataName(Vertical);
                 int psm = Vertical ? 5 : 6;
                 pProcess.StartInfo.Arguments = TEMP_IMG + " tmp -l " + lang + " --psm " + psm + " hocr"; //argument

@@ -19,7 +19,7 @@ namespace Miharu.FrontEnd
         private readonly string[] BaseColors = { "Dark", "Light" };
         private readonly string[] AccentColors = { "Red", "Green", "Blue", "Purple", "Orange", "Lime", "Emerald", "Teal", "Cyan", "Cobalt", "Indigo", "Violet", "Pink", "Magenta", "Crimson", "Amber", "Yellow", "Brown", "Olive", "Steel", "Mauve", "Taupe", "Sienna" };
 
-        private ChapterManager _chapterManager;
+        private readonly ChapterManager _chapterManager;
 
         private bool _originalUseScreenDPI = false;
         private bool requiresRestart = false;
@@ -53,45 +53,47 @@ namespace Miharu.FrontEnd
 
             _chapterManager = chapterManager;
 
-            TesseractPathTextBox.Text = (string)Settings.Default["TesseractPath"];
+            TesseractPathTextBox.Text = Settings.Default.TesseractPath;
             ApplyButton.IsEnabled = false;
 
             TesseractSourceLanguageListBox.ItemsSource = Enum.GetValues(typeof(TesseractSourceLanguage));
-            TesseractSourceLanguageListBox.SelectedItem = Enum.Parse(typeof(TesseractSourceLanguage), Settings.Default["TesseractSourceLanguage"].ToString());
+            TesseractSourceLanguageListBox.SelectedItem = Enum.Parse(typeof(TesseractSourceLanguage), Settings.Default.TesseractSourceLanguage.ToString());
             TesseractSourceLanguageListBox.SelectionChanged += CheckChanged;
             TranslationTargetLanguageListBox.ItemsSource = Enum.GetValues(typeof(TranslationTargetLanguage));
-            TranslationTargetLanguageListBox.SelectedItem = Enum.Parse(typeof(TranslationTargetLanguage), Settings.Default["TranslationTargetLanguage"].ToString());
+            TranslationTargetLanguageListBox.SelectedItem = Enum.Parse(typeof(TranslationTargetLanguage), Settings.Default.TranslationTargetLanguage.ToString());
             TranslationTargetLanguageListBox.SelectionChanged += CheckChanged;
 
             ThemeBaseColorListBox.ItemsSource = BaseColors;
-            ThemeBaseColorListBox.SelectedItem = (string)Settings.Default["Theme"];
+            ThemeBaseColorListBox.SelectedItem = Settings.Default.Theme;
             ThemeAccentColorListBox.ItemsSource = AccentColors;
-            ThemeAccentColorListBox.SelectedItem = (string)Settings.Default["Accent"];
+            ThemeAccentColorListBox.SelectedItem = Settings.Default.Accent;
 
-            _originalUseScreenDPI = (bool)Settings.Default["UseScreenDPI"];
+            _originalUseScreenDPI = Settings.Default.UseScreenDPI;
             UseScreenDPIToggleSwitch.IsOn = _originalUseScreenDPI;
 
-            WarnTextDeletionToggleSwitch.IsOn = (bool)Settings.Default["WarnTextDeletion"];
+            WarnTextDeletionToggleSwitch.IsOn = Settings.Default.WarnTextDeletion;
 
-            AutoTranslateToggleSwitch.IsOn = (bool)Settings.Default["AutoTranslateEnabled"];
+            AutoTranslateToggleSwitch.IsOn = Settings.Default.AutoTranslateEnabled;
 
 
-            string disabledTypes = (string)Settings.Default["DisabledTranslationSources"];
+            string disabledTypes = Settings.Default.DisabledTranslationSources;
             foreach (TranslationType t in translationManager.AvailableTranslations)
             {
                 if (t.HasFlag(TranslationType.Web))
                 {
-                    ToggleSwitch ts = new ToggleSwitch();
-                    ts.Content = t;
-                    ts.IsOn = !disabledTypes.Contains(t.ToString());
-                    ts.IsEnabled = AutoTranslateToggleSwitch.IsOn;
+                    ToggleSwitch ts = new ToggleSwitch
+                    {
+                        Content = t,
+                        IsOn = !disabledTypes.Contains(t.ToString()),
+                        IsEnabled = AutoTranslateToggleSwitch.IsOn
+                    };
                     ts.Toggled += CheckChanged;
                     TranslationSourcesStackPanel.Children.Add(ts);
                 }
             }
+
             ApplyButton.IsEnabled = false;
             AutoTranslateToggleSwitch.Toggled += OnAutoTranslateChackChange;
-
         }
 
         private void OnAutoTranslateChackChange(object sender, EventArgs e)
@@ -99,24 +101,30 @@ namespace Miharu.FrontEnd
             if (IsLoaded)
             {
                 foreach (ToggleSwitch ts in TranslationSourcesStackPanel.Children)
+                {
                     ts.IsEnabled = AutoTranslateToggleSwitch.IsOn;
+                }
             }
         }
 
         private void TesseractPathButton_Click(object sender, RoutedEventArgs e)
         {
-            VistaOpenFileDialog fileDialog = new VistaOpenFileDialog();
-            fileDialog.AddExtension = true;
-            fileDialog.CheckFileExists = true;
-            fileDialog.CheckPathExists = true;
-            fileDialog.DefaultExt = ".exe";
-            fileDialog.Filter = "Tesseract (tesseract.exe)|tesseract.exe";
-            fileDialog.Multiselect = false;
-            fileDialog.Title = "Select Tesseract Executable";
+            VistaOpenFileDialog fileDialog = new VistaOpenFileDialog
+            {
+                AddExtension = true,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = ".exe",
+                Filter = "Tesseract (tesseract.exe)|tesseract.exe",
+                Multiselect = false,
+                Title = "Select Tesseract Executable"
+            };
+
             bool? res = fileDialog.ShowDialog(this);
             if (res ?? false)
+            {
                 TesseractPath = fileDialog.FileName;
-
+            }
         }
 
         private void TesseractPathTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -141,50 +149,60 @@ namespace Miharu.FrontEnd
         private string _failReason;
         private bool CheckTesseractPath()
         {
-            bool res = false;
+            bool res;
             if (res = File.Exists(TesseractPath))
             {
                 FileInfo fi = new FileInfo(TesseractPath);
                 if (!(res = fi.Extension == ".exe"))
+                {
                     _failReason = "File must be an executable (Extension .exe)";
+                }
             }
             else
+            {
                 _failReason = "Could not find file at " + TesseractPath;
+            }
+
             return res;
         }
 
         private void SavePreferences()
         {
-            Settings.Default["TesseractPath"] = TesseractPath;
+            Settings.Default.TesseractPath = TesseractPath;
 
-            Settings.Default["TesseractSourceLanguage"] = TesseractSourceLanguageListBox.SelectedItem.ToString();
-            Settings.Default["TranslationTargetLanguage"] = TranslationTargetLanguageListBox.SelectedItem.ToString();
+            Settings.Default.TesseractSourceLanguage = TesseractSourceLanguageListBox.SelectedItem.ToString();
+            Settings.Default.TranslationTargetLanguage = TranslationTargetLanguageListBox.SelectedItem.ToString();
 
-            Settings.Default["Theme"] = (string)ThemeBaseColorListBox.SelectedValue;
-            Settings.Default["Accent"] = (string)ThemeAccentColorListBox.SelectedValue;
+            Settings.Default.Theme = (string)ThemeBaseColorListBox.SelectedValue;
+            Settings.Default.Accent = (string)ThemeAccentColorListBox.SelectedValue;
 
-            Settings.Default["UseScreenDPI"] = UseScreenDPIToggleSwitch.IsOn;
+            Settings.Default.UseScreenDPI = UseScreenDPIToggleSwitch.IsOn;
 
-            Settings.Default["WarnTextDeletion"] = WarnTextDeletionToggleSwitch.IsOn;
+            Settings.Default.WarnTextDeletion = WarnTextDeletionToggleSwitch.IsOn;
 
-            Settings.Default["AutoTranslateEnabled"] = AutoTranslateToggleSwitch.IsOn;
+            Settings.Default.AutoTranslateEnabled = AutoTranslateToggleSwitch.IsOn;
 
 
             string disabledSources = "";
             foreach (ToggleSwitch ts in TranslationSourcesStackPanel.Children)
             {
                 if (!ts.IsOn)
+                {
                     disabledSources += ts.Content.ToString() + ";";
+                }
             }
             if (disabledSources.Length > 0)
+            {
                 disabledSources = disabledSources.Substring(0, disabledSources.Length - 1);
-            Settings.Default["DisabledTranslationSources"] = disabledSources;
+            }
+
+            Settings.Default.DisabledTranslationSources = disabledSources;
             Settings.Default.Save();
 
-            if (_chapterManager.IsChapterLoaded && _originalUseScreenDPI != (UseScreenDPIToggleSwitch.IsOn))
+            if (_chapterManager.IsChapterLoaded && _originalUseScreenDPI != UseScreenDPIToggleSwitch.IsOn)
             {
                 _originalUseScreenDPI = UseScreenDPIToggleSwitch.IsOn;
-                Miharu.BackEnd.Data.Page.UseScreenDPI = _originalUseScreenDPI;
+                BackEnd.Data.Page.UseScreenDPI = _originalUseScreenDPI;
                 _chapterManager.ReloadPages();
                 _chapterManager.PageManager.ChangePage(_chapterManager.PageManager.CurrentPageIndex);
             }
@@ -204,7 +222,9 @@ namespace Miharu.FrontEnd
                 }
             }
             else
+            {
                 WarnBadPath(_failReason);
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -226,7 +246,9 @@ namespace Miharu.FrontEnd
                 }
             }
             else
+            {
                 WarnBadPath(_failReason);
+            }
         }
 
         private void ThemeSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -241,7 +263,9 @@ namespace Miharu.FrontEnd
         private void CheckChanged(object sender, EventArgs e)
         {
             if (IsLoaded)
+            {
                 ApplyButton.IsEnabled = true;
+            }
 
             if (sender == TesseractSourceLanguageListBox || sender == TranslationTargetLanguageListBox)
             {
