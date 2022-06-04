@@ -42,9 +42,9 @@
                         </Grid.RowDefinitions>
 
                         <Label Content="Tesseract Source Language" Grid.Row="0" Grid.Column="0" FontSize="20"/>
-                        <Controls:SplitButton x:Name="TesseractSourceLanguageListBox" Grid.Row="1" Grid.Column="0" Width="120"/>
+                        <Controls:SplitButton x:Name="TesseractSourceLanguageListBox" Grid.Row="1" Grid.Column="0" Width="150"/>
                         <Label Content="Translation Target Language" Grid.Row="0" Grid.Column="1" FontSize="20"/>
-                        <Controls:SplitButton x:Name="TranslationTargetLanguageListBox" Grid.Row="1" Grid.Column="1" Width="120"/>
+                        <Controls:SplitButton x:Name="TranslationTargetLanguageListBox" Grid.Row="1" Grid.Column="1" Width="150"/>
                     </Grid>
                     <Separator Margin="10"/>
                     <Grid Margin="10">
