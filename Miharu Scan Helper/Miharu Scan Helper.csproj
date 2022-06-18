@@ -180,7 +180,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FrontEnd\PreferencesDialog.xaml">
+    <Page Include="FrontEnd\Preferences\PreferencesDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -216,6 +216,7 @@
     <Compile Include="BackEnd\Data\SaveUpdater.cs" />
     <Compile Include="BackEnd\Helper\JPUTF8CharCounter.cs" />
     <Compile Include="BackEnd\Helper\LanguageExtensions.cs" />
+    <Compile Include="BackEnd\Helper\TesseractHelper.cs" />
     <Compile Include="BackEnd\Helper\TranslatorHelper.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPBingTranslator.cs" />
     <Compile Include="BackEnd\Translation\HTTPTranslators\HTTPGoogleTranslator.cs" />
@@ -288,9 +289,10 @@
       <DependentUpon>PageControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="FrontEnd\Page\RectangleOverlay.cs" />
-    <Compile Include="FrontEnd\PreferencesDialog.xaml.cs">
+    <Compile Include="FrontEnd\Preferences\PreferencesDialog.xaml.cs">
       <DependentUpon>PreferencesDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FrontEnd\Preferences\TesseractSourceLanguageItem.cs" />
     <Compile Include="FrontEnd\RipDialog.xaml.cs">
       <DependentUpon>RipDialog.xaml</DependentUpon>
     </Compile>

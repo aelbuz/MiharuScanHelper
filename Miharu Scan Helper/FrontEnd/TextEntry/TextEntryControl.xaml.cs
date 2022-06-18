@@ -26,8 +26,8 @@ namespace Miharu.FrontEnd
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool DeleteObject([In] IntPtr hObject);
 
-        private TextEntryManager _textEntryManager;
-        private KanjiInputManager _kanjiInputManager;
+        private readonly TextEntryManager _textEntryManager;
+        private readonly KanjiInputManager _kanjiInputManager;
 
         public bool ShowSlider = false;
 
@@ -54,7 +54,10 @@ namespace Miharu.FrontEnd
             kanjiByRadInput.Visibility = tesseractSourceLanguage == TesseractSourceLanguage.Japanese ? Visibility.Visible : Visibility.Collapsed;
 
             if (_textEntryManager.IsTextSelected)
+            {
                 LoadTextEntry();
+            }
+
             _textEntryManager.PageManager.TextEntryRequiresTranslation += OnTextEntryRequiresTranslation;
             TextTabControl.SelectedIndex = _textEntryManager.TabIndex;
 
@@ -119,7 +122,6 @@ namespace Miharu.FrontEnd
                 senderTB.Tag = guid;
                 NotesStackPanel.Children.Add(NewNoteTextBox());
             }
-
         }
 
         private void LoadTextEntry()
@@ -133,8 +135,9 @@ namespace Miharu.FrontEnd
             foreach (TranslationType t in _textEntryManager.TranslationManager.AvailableTranslations)
             {
                 if (t.HasFlag(TranslationType.Web))
-                    TranslationSourcesStackPanel.Children.Add(new TranslationSourceView(
-                        _textEntryManager.TranslationManager, t, _textEntryManager.CurrentText));
+                {
+                    TranslationSourcesStackPanel.Children.Add(new TranslationSourceView(_textEntryManager.TranslationManager, t, _textEntryManager.CurrentText));
+                }
             }
 
             SFXTranslationGrid.Children.Clear();
@@ -167,12 +170,17 @@ namespace Miharu.FrontEnd
             if (e.ChangeType == TextChangeType.Parse)
             {
                 if (ParsedTextBox.Text != e.Text)
+                {
                     ParsedTextBox.Text = e.Text;
+                }
+
                 RefreshParseButton.IsEnabled = true;
                 VerticalToggleSwitch.IsEnabled = true;
             }
             else if (e.ChangeType == TextChangeType.Translation)
+            {
                 TranslatedTextBox.Text = e.Text;
+            }
         }
 
         private void RefreshParseButton_Click(object sender, RoutedEventArgs e)
@@ -206,14 +214,19 @@ namespace Miharu.FrontEnd
         private void ParsedTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_textEntryManager.CurrentText.ParsedText != ParsedTextBox.Text)
+            {
                 _textEntryManager.ChangeParsedText(ParsedTextBox.Text);
+            }
+
             CheckAnimation(ParsedTextBox.Text);
         }
 
         private void TranslatedTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_textEntryManager.CurrentText.TranslatedText != TranslatedTextBox.Text)
+            {
                 _textEntryManager.ChangeTranslatedText(TranslatedTextBox.Text);
+            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -230,10 +243,16 @@ namespace Miharu.FrontEnd
                 PreviewIMG.Source = dest;
                 double desiredSize = PreviewIMGBorder.ActualHeight * (dest.Width / dest.Height);
                 if (desiredSize > ParsedTextAndIMGPreviewGrid.ActualWidth / 3)
+                {
                     desiredSize = ParsedTextAndIMGPreviewGrid.ActualWidth / 3;
+                }
+
                 PreviewIMG.Width = desiredSize;
             }
-            finally { DeleteObject(handle); }
+            finally
+            {
+                DeleteObject(handle);
+            }
         }
 
         private void RefreshAllButton_Click(object sender, RoutedEventArgs e)
@@ -243,8 +262,10 @@ namespace Miharu.FrontEnd
 
         private void OnTextEntryRequiresTranslation(object sender, EventArgs e)
         {
-            if ((bool)Properties.Settings.Default["AutoTranslateEnabled"])
+            if (Properties.Settings.Default.AutoTranslateEnabled)
+            {
                 TranslateAll();
+            }
 
             _textEntryManager.PageManager.TextEntryRequiresTranslation -= OnTextEntryRequiresTranslation;
         }
@@ -253,25 +274,24 @@ namespace Miharu.FrontEnd
         {
 
             foreach (TranslationSourceView t in TranslationSourcesStackPanel.Children)
+            {
                 t.AwaitTranslation();
+            }
 
             _textEntryManager.TranslationManager.TranslateAll();
-
-
         }
 
         private void RotateImage_Click(object sender, RoutedEventArgs e)
         {
-            if (ShowSlider = !ShowSlider)
-                RotatePreviewImgSliderBorder.Visibility = Visibility.Visible;
-            else
-                RotatePreviewImgSliderBorder.Visibility = Visibility.Hidden;
+            RotatePreviewImgSliderBorder.Visibility = (ShowSlider = !ShowSlider) ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void VerticalToggleSwitched_Toggled(object sender, RoutedEventArgs e)
         {
             if (_textEntryManager.IsTextSelected && _textEntryManager.CurrentText.Vertical != VerticalToggleSwitch.IsOn)
+            {
                 _textEntryManager.SetVertical(_textEntryManager.CurrentText.Vertical);
+            }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -281,7 +301,6 @@ namespace Miharu.FrontEnd
         }
 
         #region Animation
-
 
         private Storyboard _showS;
         private Storyboard _hideS;
@@ -304,12 +323,9 @@ namespace Miharu.FrontEnd
             animation.To = new Thickness(S_Tail.Margin.Left, S_Tail.Margin.Top, S_Tail.Margin.Right, -1);
             animation.Duration = new Duration(TimeSpan.FromSeconds(1));
 
-
             _showS.Children.Add(animation);
             Storyboard.SetTargetName(animation, S_Tail.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Controls.Image.MarginProperty));
-
-
 
             animation = new ThicknessAnimation();
             animation.From = new Thickness(S_Head.Margin.Left, S_Head.Margin.Top, S_Tail.Margin.Right, S_Head.Margin.Bottom);
@@ -320,9 +336,6 @@ namespace Miharu.FrontEnd
             Storyboard.SetTargetName(animation, S_Head.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Controls.Image.MarginProperty));
 
-
-
-
             _hideS = new Storyboard();
 
             animation = new ThicknessAnimation();
@@ -330,13 +343,9 @@ namespace Miharu.FrontEnd
             animation.From = new Thickness(S_Tail.Margin.Left, S_Tail.Margin.Top, S_Tail.Margin.Right, -1);
             animation.Duration = new Duration(TimeSpan.FromSeconds(1));
 
-
             _hideS.Children.Add(animation);
             Storyboard.SetTargetName(animation, S_Tail.Name);
             Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Controls.Image.MarginProperty));
-
-
-
 
             animation = new ThicknessAnimation();
             animation.To = new Thickness(S_Head.Margin.Left, S_Head.Margin.Top, S_Tail.Margin.Right, S_Head.Margin.Bottom);
@@ -350,8 +359,6 @@ namespace Miharu.FrontEnd
             _hideS.Completed += HideComplete;
             _showS.Completed += ShowComplete;
         }
-
-
 
         private void AnimateS()
         {
@@ -371,7 +378,9 @@ namespace Miharu.FrontEnd
         {
             _currentState = AnimState.Shown;
             if (_desiredState == AnimState.Hidden)
+            {
                 StopAnimateS();
+            }
         }
 
         private void HideComplete(object sender, EventArgs e)
@@ -380,31 +389,27 @@ namespace Miharu.FrontEnd
             S_Tail.Visibility = Visibility.Hidden;
             _currentState = AnimState.Hidden;
             if (_desiredState == AnimState.Shown)
+            {
                 AnimateS();
-
+            }
         }
 
         private void CheckAnimation(string parse)
         {
-            if (parse.Contains("なのじゃ"))
-            {
-                _desiredState = AnimState.Shown;
-            }
-            else
-            {
-                _desiredState = AnimState.Hidden;
-            }
+            _desiredState = parse.Contains("なのじゃ") ? AnimState.Shown : AnimState.Hidden;
 
             if ((_currentState == AnimState.Hidden || _currentState == AnimState.Shown) && _currentState != _desiredState)
             {
                 if (_desiredState == AnimState.Shown)
+                {
                     AnimateS();
+                }
                 else if (_desiredState == AnimState.Hidden)
+                {
                     StopAnimateS();
+                }
             }
         }
-
-
 
         #endregion
 
@@ -416,11 +421,12 @@ namespace Miharu.FrontEnd
         private void ParsedTextAndIMGPreviewGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (_textEntryManager.IsTextSelected)
+            {
                 ShowImageFromBitmap(_textEntryManager.CurrentText.Source);
+            }
         }
 
         #region KanjiInput
-
 
         private void KanjiInputExpander_Collapsed(object sender, RoutedEventArgs e)
         {
@@ -455,7 +461,9 @@ namespace Miharu.FrontEnd
         private void KanjiInputManager_VisibilityChanged(object sender, EventArgs e)
         {
             if (KanjiInputExpander.IsExpanded != _kanjiInputManager.KanjiInputWindowVisibility)
+            {
                 KanjiInputExpander.IsExpanded = _kanjiInputManager.KanjiInputWindowVisibility;
+            }
         }
 
         private void _kanjiInputManager_KanjiInputEvent(object sender, KanjiInputEventArgs e)
@@ -470,11 +478,6 @@ namespace Miharu.FrontEnd
             ParsedTextBox.Focus();
         }
 
-
-
-
-
-
         #endregion
 
         private void CurrRotationTextBox_GotMouseCapture(object sender, MouseEventArgs e)
@@ -484,7 +487,7 @@ namespace Miharu.FrontEnd
 
         private void CurrRotationTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return)
+            if (e.Key == Key.Enter || e.Key == Key.Return)
             {
                 e.Handled = true;
             }
@@ -494,13 +497,13 @@ namespace Miharu.FrontEnd
 
         private void CurrRotationTextBox_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            if (_previousCurrRotTBText != CurrRotationTextBox.Text && (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return))
+            if (_previousCurrRotTBText != CurrRotationTextBox.Text && (e.Key == Key.Enter || e.Key == Key.Return))
             {
                 ParseCurrRotTextBox();
                 Keyboard.ClearFocus();
                 e.Handled = true;
             }
-            else if (e.Key == System.Windows.Input.Key.Escape)
+            else if (e.Key == Key.Escape)
             {
                 Keyboard.ClearFocus();
                 CurrRotationTextBox.Text = _previousCurrRotTBText;
@@ -512,7 +515,10 @@ namespace Miharu.FrontEnd
         {
             string significant = CurrRotationTextBox.Text;
             if (significant.Contains("º"))
+            {
                 significant = significant.Substring(0, significant.IndexOf('º'));
+            }
+
             float result = _textEntryManager.Rotation;
             if (float.TryParse(significant, out result))
             {
@@ -523,7 +529,6 @@ namespace Miharu.FrontEnd
                 CurrRotationTextBox.Text = _previousCurrRotTBText;
                 System.Media.SystemSounds.Exclamation.Play();
             }
-
         }
 
         private void OnRotationChanged(object sender, EventArgs e)
@@ -533,7 +538,7 @@ namespace Miharu.FrontEnd
             ShowImageFromBitmap(_textEntryManager.CurrentText.Source);
         }
 
-        float _prevRot = 0;
+        private float _prevRot = 0;
 
         private void RotatePreviewImgSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {

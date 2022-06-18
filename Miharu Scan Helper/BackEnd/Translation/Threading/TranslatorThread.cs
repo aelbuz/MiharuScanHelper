@@ -1,4 +1,5 @@
 ﻿using Miharu.BackEnd.Translation.WebCrawlers;
+using Miharu.Properties;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,21 +9,23 @@ namespace Miharu.BackEnd.Translation.Threading
 {
     public class TranslatorThread
     {
-
         public volatile ConcurrentQueue<TranslationRequest> _workQueue;
         private volatile bool _end = false;
         private WebDriverManager _webDriverManager;
         private TranslationProvider _translationProvider;
-        private AutoResetEvent _workHandle;
+        private readonly AutoResetEvent _workHandle;
         private volatile bool _initialized = false;
-        private ManualResetEvent _initializeHandle;
+        private readonly ManualResetEvent _initializeHandle;
 
         public IEnumerable<TranslationType> AvailableTranslations
         {
             get
             {
                 if (!_initialized)
+                {
                     _initializeHandle.WaitOne();
+                }
+
                 return _translationProvider;
             }
         }
@@ -32,12 +35,13 @@ namespace Miharu.BackEnd.Translation.Threading
             get
             {
                 if (!_initialized)
+                {
                     _initializeHandle.WaitOne();
-                return _webDriverManager != null ? _webDriverManager.IsAlive : false;
+                }
+
+                return _webDriverManager != null && _webDriverManager.IsAlive;
             }
         }
-
-
 
         private TranslatorThread()
         {
@@ -69,8 +73,6 @@ namespace Miharu.BackEnd.Translation.Threading
             _webDriverManager?.Dispose();
         }
 
-
-
         public void Work(TesseractSourceLanguage tesseractSourceLanguage, TranslationTargetLanguage translationTargetLanguage)
         {
             try
@@ -80,9 +82,10 @@ namespace Miharu.BackEnd.Translation.Threading
                 while (!_end)
                 {
                     _workHandle.WaitOne();
-                    TranslationRequest req = null;
-                    while (_workQueue.TryDequeue(out req))
+                    while (_workQueue.TryDequeue(out TranslationRequest req))
+                    {
                         _translationProvider.Translate(req);
+                    }
                 }
             }
             finally
@@ -94,7 +97,10 @@ namespace Miharu.BackEnd.Translation.Threading
         public void Translate(TranslationRequest request)
         {
             if (!_initialized)
+            {
                 _initializeHandle.WaitOne();
+            }
+
             _workQueue.Enqueue(request);
             _workHandle.Set();
         }
@@ -102,33 +108,37 @@ namespace Miharu.BackEnd.Translation.Threading
         public void TranslateAll(TranslationRequest request)
         {
             if (!_initialized)
+            {
                 _initializeHandle.WaitOne();
+            }
 
-
-            string disabledTypes = ((string)Properties.Settings.Default["DisabledTranslationSources"]);
+            string disabledTypes = Settings.Default.DisabledTranslationSources;
             foreach (TranslationType t in _translationProvider)
             {
                 if (t.HasFlag(TranslationType.Web))
                 {
                     if (!disabledTypes.Contains(t.ToString()))
+                    {
                         _workQueue.Enqueue(new TranslationRequest(request.Destination, t, request.Text, request.Consumer));
+                    }
                     else
+                    {
                         request.Consumer.TranslationFailed(new Exception("Translation source is disabled."), t);
+                    }
                 }
             }
             _workHandle.Set();
         }
 
-
         public void FinalizeThread()
         {
             if (!_initialized)
+            {
                 _initializeHandle.WaitOne();
+            }
+
             _end = true;
             _workHandle.Set();
         }
-
-
-
     }
 }

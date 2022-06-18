@@ -1,5 +1,6 @@
 ﻿using ControlzEx.Theming;
 using Miharu.BackEnd;
+using Miharu.BackEnd.Helper;
 using Miharu.BackEnd.Translation;
 using Miharu.BackEnd.Translation.Threading;
 using Miharu.Control;
@@ -29,7 +30,7 @@ namespace Miharu
             string[] values = path.Split(Path.PathSeparator);
             for (int i = 0; i < values.Length && !res; i++)
             {
-                var fullPath = Path.Combine(values[i], fileName);
+                string fullPath = Path.Combine(values[i], fileName);
                 res = File.Exists(fullPath);
             }
 
@@ -38,20 +39,22 @@ namespace Miharu
 
         private static bool CheckForTesseract()
         {
-            if (!File.Exists((string)Settings.Default["TesseractPath"]))
+            if (!File.Exists(Settings.Default.TesseractPath))
             {
                 if (ExistsInPath("tesseract.exe"))
                 {
-                    Settings.Default["TesseractPath"] = "tesseract.exe";
+                    Settings.Default.TesseractPath = "tesseract.exe";
                     Settings.Default.Save();
                     return true;
                 }
-                TaskDialog dialog = new TaskDialog();
-                dialog.WindowTitle = "Warning Tesseract Not Found";
-                dialog.MainIcon = TaskDialogIcon.Warning;
-                dialog.MainInstruction = "Tesseract executable could not be located.";
-                dialog.Content = @"Miharu requires Tesseract to function.
-Would you like to locate the Tesseract exectutable manually?";
+
+                TaskDialog dialog = new TaskDialog
+                {
+                    WindowTitle = "Warning Tesseract Not Found",
+                    MainIcon = TaskDialogIcon.Warning,
+                    MainInstruction = "Tesseract executable could not be located.",
+                    Content = @"Miharu requires Tesseract to function. Would you like to locate the Tesseract exectutable manually?"
+                };
 
                 TaskDialogButton okButton = new TaskDialogButton(ButtonType.Yes);
                 dialog.Buttons.Add(okButton);
@@ -59,20 +62,25 @@ Would you like to locate the Tesseract exectutable manually?";
                 dialog.Buttons.Add(cancelButton);
                 TaskDialogButton button = dialog.ShowDialog();
                 if (button.ButtonType == ButtonType.No)
+                {
                     return false;
+                }
 
-                VistaOpenFileDialog fileDialog = new VistaOpenFileDialog();
-                fileDialog.AddExtension = true;
-                fileDialog.CheckFileExists = true;
-                fileDialog.CheckPathExists = true;
-                fileDialog.DefaultExt = ".exe";
-                fileDialog.Filter = "Tesseract (tesseract.exe)|tesseract.exe";
-                fileDialog.Multiselect = false;
-                fileDialog.Title = "Select Tesseract Executable";
+                VistaOpenFileDialog fileDialog = new VistaOpenFileDialog
+                {
+                    AddExtension = true,
+                    CheckFileExists = true,
+                    CheckPathExists = true,
+                    DefaultExt = ".exe",
+                    Filter = "Tesseract (tesseract.exe)|tesseract.exe",
+                    Multiselect = false,
+                    Title = "Select Tesseract Executable"
+                };
+
                 bool? res = fileDialog.ShowDialog();
                 if (res ?? false)
                 {
-                    Settings.Default["TesseractPath"] = fileDialog.FileName;
+                    Settings.Default.TesseractPath = fileDialog.FileName;
                     Settings.Default.Save();
                 }
                 else
@@ -88,24 +96,35 @@ Would you like to locate the Tesseract exectutable manually?";
             string res = null;
             if (CrashHandler.LastSessionCrashed)
             {
-                TaskDialog dialog = new TaskDialog();
-                dialog.WindowTitle = "Warning";
-                dialog.MainIcon = TaskDialogIcon.Warning;
-                dialog.MainInstruction = "It seems like a file can be recovered from last session.";
-                dialog.Content = "Would you like to attempt to recover the file?";
-                TaskDialogButton saveButton = new TaskDialogButton(ButtonType.Yes);
-                saveButton.Text = "Yes";
+                TaskDialog dialog = new TaskDialog
+                {
+                    WindowTitle = "Warning",
+                    MainIcon = TaskDialogIcon.Warning,
+                    MainInstruction = "It seems like a file can be recovered from last session.",
+                    Content = "Would you like to attempt to recover the file?"
+                };
+
+                TaskDialogButton saveButton = new TaskDialogButton(ButtonType.Yes)
+                {
+                    Text = "Yes"
+                };
                 dialog.Buttons.Add(saveButton);
-                TaskDialogButton noSaveButton = new TaskDialogButton(ButtonType.No);
-                noSaveButton.Text = "No";
+
+                TaskDialogButton noSaveButton = new TaskDialogButton(ButtonType.No)
+                {
+                    Text = "No"
+                };
                 dialog.Buttons.Add(noSaveButton);
+
                 TaskDialogButton button = dialog.ShowDialog();
                 string temp = CrashHandler.RecoverLastSessionFile();
+
                 if (button.ButtonType == ButtonType.Yes)
                 {
                     res = temp;
                 }
             }
+
             return res;
         }
 
@@ -118,6 +137,7 @@ Would you like to locate the Tesseract exectutable manually?";
             KanjiInputManager kanjiInputManager = null;
             TranslatorThread translatorThread = null;
             MiharuMainWindow mainWindow = null;
+
             try
             {
                 App application = new App();
@@ -136,7 +156,9 @@ Would you like to locate the Tesseract exectutable manually?";
                     string startChapter = null;
                     startChapter = CheckCrash();
                     if (startChapter == null && args.Length > 0 && File.Exists(args[0]))
+                    {
                         startChapter = args[0];
+                    }
 
                     /*Logger.Log("Start Chapter: " + startChapter);
 					Logger.Log("Args Length: " + args.Length);
@@ -147,7 +169,9 @@ Would you like to locate the Tesseract exectutable manually?";
 
                     chapterManager = new ChapterManager(kanjiInputManager, translatorThread);
 
-                    mainWindow = new MiharuMainWindow(chapterManager, startChapter);
+                    var availableTesseractLanguages = TesseractHelper.GetAvailableTesseractLanguages();
+
+                    mainWindow = new MiharuMainWindow(availableTesseractLanguages, chapterManager, startChapter);
 
                     PageControl pageControl = new PageControl(chapterManager.PageManager);
                     mainWindow.PageControlArea.Child = pageControl;
@@ -163,15 +187,20 @@ Would you like to locate the Tesseract exectutable manually?";
                 CrashHandler.HandleCrash(chapterManager, e);
                 FileInfo crashFileInfo = new FileInfo(Logger.CurrentCrashLog);
 
-                TaskDialog dialog = new TaskDialog();
-                dialog.WindowTitle = "Fatal Error";
-                dialog.MainIcon = TaskDialogIcon.Error;
-                dialog.MainInstruction = "There was a fatal error. Details can be found in the generated crash log:";
-                dialog.Content = crashFileInfo.FullName;
+                TaskDialog dialog = new TaskDialog
+                {
+                    WindowTitle = "Fatal Error",
+                    MainIcon = TaskDialogIcon.Error,
+                    MainInstruction = "There was a fatal error. Details can be found in the generated crash log:",
+                    Content = crashFileInfo.FullName
+                };
 
-                TaskDialogButton okButton = new TaskDialogButton("Ok");
-                okButton.ButtonType = ButtonType.Ok;
+                TaskDialogButton okButton = new TaskDialogButton("Ok")
+                {
+                    ButtonType = ButtonType.Ok
+                };
                 dialog.Buttons.Add(okButton);
+
                 TaskDialogButton button = dialog.ShowDialog();
             }
             finally
@@ -183,23 +212,16 @@ Would you like to locate the Tesseract exectutable manually?";
 
         #endregion
 
-
-
-
         public App()
         {
             InitializeComponent();
         }
-
         protected override void OnStartup(StartupEventArgs e)
         {
-            ThemeManager.Current.ChangeTheme(Current,
-                (string)Settings.Default["Theme"] + "." +
-                (string)Settings.Default["Accent"]);
+            ThemeManager.Current.ChangeTheme(Current, Settings.Default.Theme + "." + Settings.Default.Accent);
 
             base.OnStartup(e);
         }
-
 
         /*public void ChangeSkin(string newSkin) {
 			Uri skinDictUri;
@@ -210,6 +232,5 @@ Would you like to locate the Tesseract exectutable manually?";
 			}
 						
 		}*/
-
     }
 }
