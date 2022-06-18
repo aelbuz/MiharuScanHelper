@@ -1,7 +1,5 @@
 ﻿using Miharu.BackEnd.Translation;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace Miharu.BackEnd.Helper
 {
@@ -223,7 +221,10 @@ namespace Miharu.BackEnd.Helper
                 case TesseractSourceLanguage.Yiddish:
                     return "yid";
                 default:
-                    throw new InvalidEnumArgumentException("Given Tesseract language is not supported.", (int)tesseractSourceLanguage, typeof(TesseractSourceLanguage));
+                    {
+                        Logger.Log($"Given Tesseract language {tesseractSourceLanguage} is not supported.");
+                        return string.Empty;
+                    }
             }
         }
 
@@ -236,7 +237,10 @@ namespace Miharu.BackEnd.Helper
                 case TesseractSourceLanguage.Korean:
                     return "ko";
                 default:
-                    throw new InvalidEnumArgumentException("Given translation language is not supported.", (int)translationSourceLanguage, typeof(TesseractSourceLanguage));
+                    {
+                        Logger.Log($"Given translation language {translationSourceLanguage} is not supported.");
+                        return string.Empty;
+                    }
             }
         }
 
@@ -295,7 +299,10 @@ namespace Miharu.BackEnd.Helper
                 case TranslationTargetLanguage.Turkish:
                     return "tr";
                 default:
-                    throw new InvalidEnumArgumentException("Given translation language is not supported.", (int)translationTargetLanguage, typeof(TranslationTargetLanguage));
+                    {
+                        Logger.Log($"Given translation language {translationTargetLanguage} is not supported.");
+                        return string.Empty;
+                    }
             }
         }
 

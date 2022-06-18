@@ -1,5 +1,4 @@
 ﻿using Miharu.BackEnd.Translation;
-using Miharu.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +8,6 @@ namespace Miharu.BackEnd.Helper
 {
     public static class TesseractHelper
     {
-        //private const string TrainDataFolder = "tessdata";
         private const string TesseractTrainDataPath = @"Resources\Redist\Tesseract-OCR\tessdata";
 
         public static IEnumerable<TesseractSourceLanguage> GetAvailableTesseractLanguages()
