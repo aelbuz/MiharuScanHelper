@@ -1,11 +1,22 @@
 ﻿using Miharu.BackEnd.Translation;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace Miharu.BackEnd.Helper
 {
     public static class LanguageExtensions
     {
-        public static string ToTesseractTestDataName(this TesseractSourceLanguage tesseractSourceLanguage, bool isVertical = false)
+        public const string TesseractTrainDataExtension = "traineddata";
+        public static readonly IEnumerable<TesseractSourceLanguage> TesseractMultipleTrainDataLanguages = new List<TesseractSourceLanguage>()
+        {
+            TesseractSourceLanguage.Chinese_Simplified,
+            TesseractSourceLanguage.Chinese_Traditional,
+            TesseractSourceLanguage.Japanese,
+            TesseractSourceLanguage.Korean
+        };
+
+        public static string ToTesseractTrainDataName(this TesseractSourceLanguage tesseractSourceLanguage, bool isVertical = false)
         {
             switch (tesseractSourceLanguage)
             {
@@ -44,9 +55,9 @@ namespace Miharu.BackEnd.Helper
                 case TesseractSourceLanguage.Cherokee:
                     return "chr";
                 case TesseractSourceLanguage.Chinese_Simplified:
-                    return "chi_sim";
+                    return isVertical ? "chi_sim_vert" : "chi_sim";
                 case TesseractSourceLanguage.Chinese_Traditional:
-                    return "chi_tra";
+                    return isVertical ? "chi_tra_vert" : "chi_tra";
                 case TesseractSourceLanguage.Croatian:
                     return "hrv";
                 case TesseractSourceLanguage.Czech:

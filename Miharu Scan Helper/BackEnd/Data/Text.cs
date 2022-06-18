@@ -324,7 +324,7 @@ namespace Miharu.BackEnd.Data
             using (Process pProcess = new Process())
             {
                 pProcess.StartInfo.FileName = Settings.Default.TesseractPath;
-                string lang = tesseractSourceLanguage.ToTesseractTestDataName(Vertical);
+                string lang = tesseractSourceLanguage.ToTesseractTrainDataName(Vertical);
                 int psm = Vertical ? 5 : 6;
                 pProcess.StartInfo.Arguments = TEMP_IMG + " tmp -l " + lang + " --psm " + psm + " hocr"; //argument
                 pProcess.StartInfo.UseShellExecute = false;

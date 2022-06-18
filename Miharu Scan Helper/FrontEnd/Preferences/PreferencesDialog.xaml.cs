@@ -5,11 +5,13 @@ using Miharu.Control;
 using Miharu.Properties;
 using Ookii.Dialogs.Wpf;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 
-namespace Miharu.FrontEnd
+namespace Miharu.FrontEnd.Preferences
 {
     /// <summary>
     /// Interaction logic for PreferencesDialog.xaml
@@ -47,7 +49,7 @@ namespace Miharu.FrontEnd
             private set;
         } = null;
 
-        public PreferencesDialog(TranslationManager translationManager, ChapterManager chapterManager)
+        public PreferencesDialog(TranslationManager translationManager, ChapterManager chapterManager, IEnumerable<TesseractSourceLanguage> availableTesseractLanguages)
         {
             InitializeComponent();
 
@@ -56,9 +58,18 @@ namespace Miharu.FrontEnd
             TesseractPathTextBox.Text = Settings.Default.TesseractPath;
             ApplyButton.IsEnabled = false;
 
-            TesseractSourceLanguageListBox.ItemsSource = Enum.GetValues(typeof(TesseractSourceLanguage));
-            TesseractSourceLanguageListBox.SelectedItem = Enum.Parse(typeof(TesseractSourceLanguage), Settings.Default.TesseractSourceLanguage.ToString());
+            var tesseractLanguages = GetAvailableTesseractLanguageItems(availableTesseractLanguages);
+
+            TesseractSourceLanguageListBox.ItemsSource = tesseractLanguages;
+
+            if (Enum.TryParse(Settings.Default.TesseractSourceLanguage, out TesseractSourceLanguage selectedTesseractLanguage))
+            {
+                TesseractSourceLanguageListBox.SelectedItem = tesseractLanguages.FirstOrDefault(l => l.Language == selectedTesseractLanguage);
+            }
+
+            TesseractSourceLanguageListBox.DisplayMemberPath = nameof(TesseractSourceLanguageItem.Label);
             TesseractSourceLanguageListBox.SelectionChanged += CheckChanged;
+
             TranslationTargetLanguageListBox.ItemsSource = Enum.GetValues(typeof(TranslationTargetLanguage));
             TranslationTargetLanguageListBox.SelectedItem = Enum.Parse(typeof(TranslationTargetLanguage), Settings.Default.TranslationTargetLanguage.ToString());
             TranslationTargetLanguageListBox.SelectionChanged += CheckChanged;
@@ -74,7 +85,6 @@ namespace Miharu.FrontEnd
             WarnTextDeletionToggleSwitch.IsOn = Settings.Default.WarnTextDeletion;
 
             AutoTranslateToggleSwitch.IsOn = Settings.Default.AutoTranslateEnabled;
-
 
             string disabledTypes = Settings.Default.DisabledTranslationSources;
             foreach (TranslationType t in translationManager.AvailableTranslations)
@@ -94,6 +104,11 @@ namespace Miharu.FrontEnd
 
             ApplyButton.IsEnabled = false;
             AutoTranslateToggleSwitch.Toggled += OnAutoTranslateChackChange;
+        }
+
+        private IEnumerable<TesseractSourceLanguageItem> GetAvailableTesseractLanguageItems(IEnumerable<TesseractSourceLanguage> languages)
+        {
+            return languages.Select(l => new TesseractSourceLanguageItem(l, l.ToString().Replace('_', ' ')));
         }
 
         private void OnAutoTranslateChackChange(object sender, EventArgs e)
@@ -170,7 +185,11 @@ namespace Miharu.FrontEnd
         {
             Settings.Default.TesseractPath = TesseractPath;
 
-            Settings.Default.TesseractSourceLanguage = TesseractSourceLanguageListBox.SelectedItem.ToString();
+            if (TesseractSourceLanguageListBox.SelectedItem != null)
+            {
+                Settings.Default.TesseractSourceLanguage = ((TesseractSourceLanguageItem)TesseractSourceLanguageListBox.SelectedItem).Language.ToString(); 
+            }
+
             Settings.Default.TranslationTargetLanguage = TranslationTargetLanguageListBox.SelectedItem.ToString();
 
             Settings.Default.Theme = (string)ThemeBaseColorListBox.SelectedValue;
@@ -182,7 +201,6 @@ namespace Miharu.FrontEnd
 
             Settings.Default.AutoTranslateEnabled = AutoTranslateToggleSwitch.IsOn;
 
-
             string disabledSources = "";
             foreach (ToggleSwitch ts in TranslationSourcesStackPanel.Children)
             {
@@ -191,6 +209,7 @@ namespace Miharu.FrontEnd
                     disabledSources += ts.Content.ToString() + ";";
                 }
             }
+
             if (disabledSources.Length > 0)
             {
                 disabledSources = disabledSources.Substring(0, disabledSources.Length - 1);

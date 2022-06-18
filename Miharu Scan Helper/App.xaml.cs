@@ -1,5 +1,6 @@
 ﻿using ControlzEx.Theming;
 using Miharu.BackEnd;
+using Miharu.BackEnd.Helper;
 using Miharu.BackEnd.Translation;
 using Miharu.BackEnd.Translation.Threading;
 using Miharu.Control;
@@ -168,7 +169,9 @@ namespace Miharu
 
                     chapterManager = new ChapterManager(kanjiInputManager, translatorThread);
 
-                    mainWindow = new MiharuMainWindow(chapterManager, startChapter);
+                    var availableTesseractLanguages = TesseractHelper.GetAvailableTesseractLanguages();
+
+                    mainWindow = new MiharuMainWindow(availableTesseractLanguages, chapterManager, startChapter);
 
                     PageControl pageControl = new PageControl(chapterManager.PageManager);
                     mainWindow.PageControlArea.Child = pageControl;

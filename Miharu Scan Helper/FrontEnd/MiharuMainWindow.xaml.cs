@@ -1,10 +1,13 @@
 ﻿using MahApps.Metro.Controls;
 using Miharu.BackEnd;
+using Miharu.BackEnd.Translation;
 using Miharu.Control;
 using Miharu.FrontEnd.Helper;
+using Miharu.FrontEnd.Preferences;
 using Miharu.Properties;
 using Ookii.Dialogs.Wpf;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,12 +20,14 @@ namespace Miharu.FrontEnd
     /// </summary>
     public partial class MiharuMainWindow : MetroWindow
     {
+        private readonly IEnumerable<TesseractSourceLanguage> _availableTesseractLanguages;
         private readonly ChapterManager _chapterManager = null;
         private string _startChapter = null;
 
-        public MiharuMainWindow(ChapterManager chapterManager, string startChapter = null)
+        public MiharuMainWindow(IEnumerable<TesseractSourceLanguage> availableTesseractLanguages, ChapterManager chapterManager, string startChapter = null)
         {
             InitializeComponent();
+            _availableTesseractLanguages = availableTesseractLanguages;
             _chapterManager = chapterManager;
             _chapterManager.ChapterChanged += OnChapterChanged;
             _chapterManager.SaveChanged += OnSaveChanged;
@@ -407,7 +412,7 @@ namespace Miharu.FrontEnd
 
         private void PreferencesMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            PreferencesDialog pd = new PreferencesDialog(_chapterManager.PageManager.TextEntryManager.TranslationManager, _chapterManager);
+            PreferencesDialog pd = new PreferencesDialog(_chapterManager.PageManager.TextEntryManager.TranslationManager, _chapterManager, _availableTesseractLanguages);
             pd.Owner = this;
             pd.ShowDialog();
         }
